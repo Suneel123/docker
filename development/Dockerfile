@@ -8,7 +8,7 @@ USER root
 # Neovim configuration (SU)
 RUN apt-get update --fix-missing && \
     apt-get install -y wget git curl neovim tmux && \
-    curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
     useradd --create-home --shell /bin/bash suneel
@@ -25,17 +25,18 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
     /opt/conda/bin/conda install -y python=$PYTHON_VERSION && \
     /opt/conda/bin/conda clean -tipsy && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "export LS_COLORS=$LS_COLORS:'tw=00;34':'ow=00;34'" >> ~/.bashrc
 
 USER suneel
 # Neovim configuration
 SHELL ["/bin/bash", "-c"]
-RUN git clone https://github.com/suneel123/dotfiles $DF && \
+RUN git clone https://github.com/dsuneelc/dotfiles $DF && \
     mkdir -p $HOME/.config/nvim && \
     cp -r $DF/nvim/* $HOME/.config/nvim/ && \
     nvim -u $HOME/.config/nvim/init.vim -i NONE -c 'PlugInstall' -c 'qa' && \
     mv $HOME/.config/nvim/coc-extensions.sh /tmp/ && \
     chmod +x /tmp/coc-extensions.sh && \
     /bin/bash /tmp/coc-extensions.sh && \
-    pip install pynvim
+    pip install -r $DF/requirements_dev.txt
 
